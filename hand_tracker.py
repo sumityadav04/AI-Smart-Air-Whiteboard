@@ -9,7 +9,7 @@ Gestures:
   Select   -> index + middle fingers are up
   Idle     -> any other combination
 """
-
+    
 import cv2
 import numpy as np
 from dataclasses import dataclass
