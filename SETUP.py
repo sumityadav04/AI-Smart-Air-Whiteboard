@@ -11,3 +11,4 @@ for name, b64 in files.items():
 print("\nAll done! Now run:")
 print("  pip install -r requirements.txt")
 print("  python main.py")
+      
