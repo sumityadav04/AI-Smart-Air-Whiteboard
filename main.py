@@ -2,7 +2,7 @@
 main.py  —  Air Drawing App
 ============================
 Virtual whiteboard controlled by hand gestures + mouse.
-
+         
 HOW TO USE
 ----------
   ✋ 1 finger (index only)       → Draw on canvas
