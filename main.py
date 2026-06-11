@@ -10,7 +10,7 @@ HOW TO USE
   🖱  Mouse click on toolbar      → Pick color / brush / eraser / clear
   ⌨️  Q or ESC                    → Quit
 
-TOOLBAR (top strip)
+TOOLBAR (top strip)           
 -------------------
   [ Color swatches ] [ Brush sizes ] [ Erase ] [ Clear ]
 
