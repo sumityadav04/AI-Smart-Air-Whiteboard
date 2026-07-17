@@ -139,6 +139,29 @@ class DrawingCanvas:
                 frame[:, :, c]        * (1.0 - alpha[:, :, 0])
             ).astype(np.uint8)
 
+            def get_canvas_snapshot(self):
+              """
+              Returns the drawing canvas as PNG bytes.
+              OCR will use this image.
+              """
+
+              rgb = self._canvas[:, :, :3]
+
+              success, png = cv2.imencode(".png", rgb)
+
+              if not success:
+               return None
+
+              return png.tobytes()
+
+
+    def has_drawing(self):
+         """
+         True if something has been drawn.
+         """
+
+         return np.any(self._canvas[:, :, 3] > 0)
+
     def draw_toolbar(self, frame: np.ndarray):
         """Paint the toolbar strip at the top of *frame*."""
         # Dark background

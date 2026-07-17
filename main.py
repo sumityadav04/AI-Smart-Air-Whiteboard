@@ -22,12 +22,17 @@ REQUIREMENTS
 import time
 from typing import List, Tuple
 
+import drawing_utils
+print(drawing_utils.__file__)
+
 import cv2
 import numpy as np
 
 from drawing_utils import TOOLBAR_HEIGHT, DrawingCanvas
 from hand_tracker import HandTracker
 
+from ocr_recognizer import recognize_text 
+from grammar_corrector import correct_text
 
 WINDOW_NAME = "✏️  Air Draw  |  1-finger=Draw  2-fingers=Select  Q=Quit"
 
@@ -175,6 +180,11 @@ def main():
 
     was_drawing = False
 
+    last_draw_time = 0
+    ai_triggered = False
+
+    recognized_text = ""
+
     while True:
         ok, frame = camera.read()
         if not ok:
@@ -195,6 +205,10 @@ def main():
             if hand.is_drawing_gesture:
                 mode_label = "✏️  Drawing"
                 is_drawing  = True
+
+                last_draw_time = time.perf_counter()
+                ai_triggered = False
+
                 canvas.set_toolbar_hover(None)
                 canvas.add_stroke_point(tip)
 
@@ -223,9 +237,39 @@ def main():
             was_drawing = False
             mode_label  = "No Hand"
 
+            # OCR after 2 seconds inactivity
+
+        if (
+            not ai_triggered
+            and not is_drawing
+            and last_draw_time > 0
+            and (time.perf_counter() - last_draw_time) >= 2
+        ):
+            ai_triggered = True
+            try:
+                snapshot = canvas.get_canvas_snapshot()
+                text = recognize_text(snapshot)
+                text = correct_text(text)
+                recognized_text = text
+                print(f"[OCR] {text}")
+            except Exception as e:
+                recognized_text = f"Error: {e}"
+
         # ── Render layers ─────────────────────────────────────────────────
-        canvas.composite(frame)        # paint strokes onto camera frame
-        canvas.draw_toolbar(frame)     # toolbar on top
+        canvas.composite(frame)
+
+        # paint strokes onto camera frame
+        canvas.draw_toolbar(frame)
+        if recognized_text:
+            cv2.putText(
+                frame,
+                f"OCR: {recognized_text}",
+                (20, 130),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0,255,0),
+                2,
+            )
         canvas.draw_status(
             frame,
             fps=fps.tick(),
